@@ -1,4 +1,6 @@
-key="PASTEKEYHERE"
+#sudo pacman -S jq
+
+key="KEYHERE"
 loginParameter="Authorization: Bearer ${key}"
 savedlog="game.log"
 gameId=""
@@ -74,21 +76,22 @@ make_move() {
 }
 
 get_move() {
-    for ((i=0; i<3;i++)); do
-        sleep 3
+    curl -s -X GET https://lichess.org/game/export/"${gameId}" -o "$savedlog" -d "pgnInJson=true&moves=true"
+    lastLine=$(grep ^1. "$savedlog")
+    lastLine=$(echo "$lastLine" | grep -o ' ' | wc -l)
+    firstCheckedMove=$(grep ^1. "$savedlog" | cut -d ' ' -f "$lastLine")
+ 
+    for((;;)); do
+
         curl -s -X GET https://lichess.org/game/export/"${gameId}" -o "$savedlog" -d "pgnInJson=true&moves=true"
         lastLine=$(grep ^1. "$savedlog")
         lastLine=$(echo "$lastLine" | grep -o ' ' | wc -l)
         move=$(grep ^1. "$savedlog" | cut -d ' ' -f "$lastLine")
 
-        if [[ ${#move} -eq 2 ]] && cmp -s <(echo "$move") <(echo "$lastMove"); then
-            i=$(($i-1))
+        if [[ "$firstCheckedMove" != "$move" ]]; then
+            break
         fi
 
-        if [[ ${#move} -eq 3 ]] && cmp -s <(echo "${move:1:2}") <(echo "$lastMove"); then
-            i=$(($i-1))
-        fi
-        #to fix 
     done
 
     #hod peshki default
