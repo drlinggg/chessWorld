@@ -1,6 +1,6 @@
 #sudo pacman -S jq
 
-key="PUTHEREKEY"
+key="PUTKEYHERE"
 loginParameter="Authorization: Bearer ${key}"
 savedlog="game.log"
 gameId=""
@@ -13,7 +13,7 @@ title() {
 
 # 8x8
 # Исходный массив фигур
-chess=('r' 'n' 'b' 'q' 'k' 'b' 'n' 'r' 'p' 'p' 'p' 'p' 'p' 'p' 'p' 'p' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' 'P' 'P' 'P' 'P' 'P' 'P' 'P' 'P' 'R' 'N' 'B' 'Q' 'K' 'B' 'N' 'R')
+chess=('♖' '♘' '♗' '♕' '♔' '♗' '♘' '♖' '♙' '♙' '♙' '♙' '♙' '♙' '♙' '♙' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '♟' '♟' '♟' '♟' '♟' '♟' '♟' '♟' '♜' '♞' '♝' '♛' '♚' '♝' '♞' '♜')
 
 # Массив для хранения клеток шахматной доски
 chessBeta=()
@@ -136,11 +136,11 @@ get_move() {
         if [[ ${move:1:1} != 'x' ]]; then
             letIndex=${letter_map[${move:0:1}]}
             index=$(($letIndex+$((${move:1:1}-1))*8))
-            chess[$index]='P'
+            chess[$index]=♟
 
             for ((i=7; i>=0; i--)); do
                 tryIndex=$(($letIndex + i*8))
-                if cmp -s <(echo "${chess[$tryIndex]}") <(echo 'P'); then
+                if cmp -s <(echo "${chess[$tryIndex]}") <(echo ♟); then
                     chess[$tryIndex]=' '
                     break
                 fi
@@ -149,14 +149,14 @@ get_move() {
             letIndex=${letter_map[${move:0:1}]}
             for ((i=7; i >= 0; i--)); do
                 tryIndex=$(($letIndex + i*8))
-                if cmp -s <(echo "${chess[$tryIndex]}") <(echo 'P'); then
+                if cmp -s <(echo "${chess[$tryIndex]}") <(echo ♟); then
                     chess[$tryIndex]=' '
                     break
                 fi
             done
             letIndex=${letter_map[${move:2:1}]}
             index=$(($letIndex+$((${move:3:1}-1))*8))
-            chess[$index]='P'
+            chess[$index]=♟
         fi
     fi
 
@@ -173,7 +173,7 @@ get_move() {
             #Bishop
             found=0
             #fix
-            if cmp -s <(echo "$figure") <(echo 'B'); then
+            if cmp -s <(echo "$figure") <(echo '♝'); then
                 for ((i=-8; i < 8; i++)); do
                     if [[ found -eq 1 ]]; then
                         break
@@ -181,7 +181,7 @@ get_move() {
 
                     for ((j=-8; j < 8; j++)); do
                         tryIndex=$(($index + i*8 - j))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'B'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo '♝'); then
                             chess[$tryIndex]=' '
                             found=1
                             break
@@ -191,10 +191,10 @@ get_move() {
             fi
 
             #Rook
-            if cmp -s <(echo "$figure") <(echo 'R'); then
+            if cmp -s <(echo "$figure") <(echo '♜'); then
                 for ((i=-8; i < 8; i++)); do
                     tryIndex=$(($index + i*8))
-                    if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
+                    if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo '♜'); then
                         chess[$tryIndex]=' '
                         found=1
                         break
@@ -204,7 +204,7 @@ get_move() {
                 if [[ found==0 ]]; then
                     for ((i=-8; i < 8; i++)) do
                         tryIndex$(($index + i))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo '♜'); then
                             chess[$tryIndex]=' '
                             break;
                         fi
@@ -213,11 +213,11 @@ get_move() {
             fi
 
             #Queen
-            if cmp -s <(echo "$figure") <(echo 'Q'); then
+            if cmp -s <(echo "$figure") <(echo '♛'); then
                 for ((i=0; i < 8; i++)); do
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
-                        if cmp -s <(echo "${chess[tryIndex]}") <(echo 'Q'); then
+                        if cmp -s <(echo "${chess[tryIndex]}") <(echo '♛'); then
                             chess[$tryIndex]=' '
                             break;
                         fi
@@ -226,7 +226,7 @@ get_move() {
             fi
 
             #Knight
-            if cmp -s <(echo "$figure") <(echo 'N'); then
+            if cmp -s <(echo "$figure") <(echo '♞'); then
                 for ((i = -2; i <= 2; i+=4)); do
 
                     if [[ found == 1 ]]; then
@@ -235,14 +235,14 @@ get_move() {
 
                     for ((j = -1; j <= 1; j+=2)); do
                         tryIndex=$((index+((8*i))+j))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo '♞'); then
                             chess[$tryIndex]=' '
                             found=1
                             break
                         fi
 
                         tryIndex=$((index+((8*j))+i))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo '♞'); then
                             chess[$tryIndex]=' '
                             found=1
                             break
@@ -252,11 +252,11 @@ get_move() {
             fi
 
             #King
-            if cmp -s <(echo "$figure") <(echo 'K'); then
+            if cmp -s <(echo "$figure") <(echo ♚); then
                 for ((i=0; i < 8; i++)); do
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
-                        if cmp -s <(echo "${chess[tryIndex]}") <(echo 'K'); then
+                        if cmp -s <(echo "${chess[tryIndex]}") <(echo ♚); then
                             chess[$tryIndex]=' '
                             break;
                         fi
@@ -277,7 +277,7 @@ get_move() {
             #Bishop
             found=0
 
-            if cmp -s <(echo "$figure") <(echo 'B'); then
+            if cmp -s <(echo "$figure") <(echo '♝'); then
                 for ((i=-8; i < 8; i++)); do
                     if [[ found==1 ]]; then
                         break
@@ -285,7 +285,7 @@ get_move() {
 
                     for ((j=-8; j < 8; j++)); do
                         tryIndex=$(($index + i*8 - j))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'B'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo '♝'); then
                             chess[$tryIndex]=' '
                             found=1
                             break
@@ -295,10 +295,10 @@ get_move() {
             fi
 
             #Rook
-            if cmp -s <(echo "$figure") <(echo 'R'); then
+            if cmp -s <(echo "$figure") <(echo '♜'); then
                 for ((i=-8; i < 8; i++)); do
                     tryIndex=$(($index + i*8))
-                    if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
+                    if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo '♜'); then
                         chess[$tryIndex]=' '
                         found=1
                         break
@@ -308,7 +308,7 @@ get_move() {
                 if [[ found==0 ]]; then
                     for ((i=-8; i < 8; i++)) do
                         tryIndex$(($index + i))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo '♜'); then
                             chess[$tryIndex]=' '
                             break;
                         fi
@@ -317,11 +317,11 @@ get_move() {
             fi
 
             #Queen
-            if cmp -s <(echo "$figure") <(echo 'Q'); then
+            if cmp -s <(echo "$figure") <(echo '♛'); then
                 for ((i=0; i < 8; i++)); do
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
-                        if cmp -s <(echo "${chess[tryIndex]}") <(echo 'Q'); then
+                        if cmp -s <(echo "${chess[tryIndex]}") <(echo '♛'); then
                             chess[$tryIndex]=' '
                             break;
                         fi
@@ -330,7 +330,7 @@ get_move() {
             fi
 
             #Knight
-            if cmp -s <(echo "$figure") <(echo 'N'); then
+            if cmp -s <(echo "$figure") <(echo '♞'); then
                 for ((i = -2; i <= 2; i+=4)); do
 
                     if [[ found == 1 ]]; then
@@ -339,14 +339,14 @@ get_move() {
 
                     for ((j = -1; j <= 1; j+=2)); do
                         tryIndex=$((index+((8*i))+j))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo '♞'); then
                             chess[$tryIndex]=' '
                             found=1
                             break
                         fi
 
                         tryIndex=$((index+((8*j))+i))
-                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
+                        if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo '♞'); then
                             chess[$tryIndex]=' '
                             found=1
                             break
@@ -356,11 +356,11 @@ get_move() {
             fi
 
             #King
-            if cmp -s <(echo "$figure") <(echo 'K'); then
+            if cmp -s <(echo "$figure") <(echo ♚); then
                 for ((i=0; i < 8; i++)); do
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
-                        if cmp -s <(echo "${chess[tryIndex]}") <(echo 'K'); then
+                        if cmp -s <(echo "${chess[tryIndex]}") <(echo ♚); then
                             chess[$tryIndex]=' '
                             break;
                         fi
