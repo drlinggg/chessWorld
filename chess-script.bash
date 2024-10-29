@@ -1,6 +1,6 @@
 #sudo pacman -S jq
 
-key="KEYHERE"
+key="PUTHEREKEY"
 loginParameter="Authorization: Bearer ${key}"
 savedlog="game.log"
 gameId=""
@@ -12,9 +12,23 @@ title() {
 }
 
 # 8x8
-chess=('r' 'n' 'b' 'q' 'k' 'b' 'n' 'r' 'p' 'p' 'p' 'p' 'p' 'p' 'p' 'p' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' '_' 'P' 'P' 'P' 'P' 'P' 'P' 'P' 'P' 'R' 'N' 'B' 'Q' 'K' 'B' 'N' 'R')
+# Исходный массив фигур
+chess=('r' 'n' 'b' 'q' 'k' 'b' 'n' 'r' 'p' 'p' 'p' 'p' 'p' 'p' 'p' 'p' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' 'P' 'P' 'P' 'P' 'P' 'P' 'P' 'P' 'R' 'N' 'B' 'Q' 'K' 'B' 'N' 'R')
+
+# Массив для хранения клеток шахматной доски
+chessBeta=()
+
+# Создаем массив клеток шахматной доски
+for ((i = 0; i < 64; i++)); do
+    if [[ $i -lt 56 ]]; then
+        chessBeta+=(" ")
+    else
+        chessBeta+=("_")
+    fi
+done
 
 declare -A letter_map
+
 letter_map=(
     [a]=0
     [b]=1
@@ -29,12 +43,32 @@ letter_map=(
 display_board() {
     clear
     title
-    for ((i=7; i>=0; i--)); do
-        for ((j=0; j<8; j++)); do
-            printf "%s " "${chess[$((i * 8 + j))]}"
+
+    # Заполняем клетки шахматной доски фигурами
+    for ((i = 0; i < 8; i++)); do
+        for ((j = 0; j < 8; j++)); do
+            index=$((i * 8 + j))
+            cell=${chess[((63-index))]}
+        
+        
+            chessBeta[index]=$cell
         done
-        echo
     done
+
+    # Выводим доску
+    echo "+---+---+---+---+---+---+---+---+"
+    for ((i = 0; i < 8; i++)); do
+        row=""
+        for ((j = 7; j >= 0; j--)); do
+            cell=${chessBeta[(i * 8 + j)]}
+            row+="| $cell "
+        done
+        row+="|$((8-i))"
+        echo "$row"
+        echo "+---+---+---+---+---+---+---+---+"
+    done
+
+    echo "  a   b   c   d   e   f   g   h"
 }
 
 start_challenge() {
@@ -52,7 +86,7 @@ end_challenge() {
 }
 
 make_move() {
-    read -p "make a move " move
+    read -p "" move
 
     #resign
     if cmp -s <(echo "$move") <(echo "resign"); then
@@ -65,7 +99,7 @@ make_move() {
     letIndex=${letter_map[${move:0:1}]}
     index=$(($letIndex+$((${move:1:1}-1))*8))
     figure=${chess[$index]}
-    chess[$index]='_'
+    chess[$index]=' '
 
     letIndex=${letter_map[${move:2:1}]}
     index=$(($letIndex+$((${move:3:1}-1))*8))
@@ -80,6 +114,9 @@ get_move() {
     lastLine=$(grep ^1. "$savedlog")
     lastLine=$(echo "$lastLine" | grep -o ' ' | wc -l)
     firstCheckedMove=$(grep ^1. "$savedlog" | cut -d ' ' -f "$lastLine")
+
+    display_board
+    echo "$firstCheckedMove"
  
     for((;;)); do
 
@@ -104,7 +141,7 @@ get_move() {
             for ((i=7; i>=0; i--)); do
                 tryIndex=$(($letIndex + i*8))
                 if cmp -s <(echo "${chess[$tryIndex]}") <(echo 'P'); then
-                    chess[$tryIndex]='_'
+                    chess[$tryIndex]=' '
                     break
                 fi
             done
@@ -113,7 +150,7 @@ get_move() {
             for ((i=7; i >= 0; i--)); do
                 tryIndex=$(($letIndex + i*8))
                 if cmp -s <(echo "${chess[$tryIndex]}") <(echo 'P'); then
-                    chess[$tryIndex]='_'
+                    chess[$tryIndex]=' '
                     break
                 fi
             done
@@ -145,7 +182,7 @@ get_move() {
                     for ((j=-8; j < 8; j++)); do
                         tryIndex=$(($index + i*8 - j))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'B'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             found=1
                             break
                         fi
@@ -158,7 +195,7 @@ get_move() {
                 for ((i=-8; i < 8; i++)); do
                     tryIndex=$(($index + i*8))
                     if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
-                        chess[$tryIndex]='_'
+                        chess[$tryIndex]=' '
                         found=1
                         break
                     fi
@@ -168,7 +205,7 @@ get_move() {
                     for ((i=-8; i < 8; i++)) do
                         tryIndex$(($index + i))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             break;
                         fi
                     done
@@ -181,7 +218,7 @@ get_move() {
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
                         if cmp -s <(echo "${chess[tryIndex]}") <(echo 'Q'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             break;
                         fi
                     done
@@ -199,14 +236,14 @@ get_move() {
                     for ((j = -1; j <= 1; j+=2)); do
                         tryIndex=$((index+((8*i))+j))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             found=1
                             break
                         fi
 
                         tryIndex=$((index+((8*j))+i))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             found=1
                             break
                         fi
@@ -220,7 +257,7 @@ get_move() {
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
                         if cmp -s <(echo "${chess[tryIndex]}") <(echo 'K'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             break;
                         fi
                     done
@@ -249,7 +286,7 @@ get_move() {
                     for ((j=-8; j < 8; j++)); do
                         tryIndex=$(($index + i*8 - j))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'B'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             found=1
                             break
                         fi
@@ -262,7 +299,7 @@ get_move() {
                 for ((i=-8; i < 8; i++)); do
                     tryIndex=$(($index + i*8))
                     if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
-                        chess[$tryIndex]='_'
+                        chess[$tryIndex]=' '
                         found=1
                         break
                     fi
@@ -272,7 +309,7 @@ get_move() {
                     for ((i=-8; i < 8; i++)) do
                         tryIndex$(($index + i))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "$figure") <(echo 'R'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             break;
                         fi
                     done
@@ -285,7 +322,7 @@ get_move() {
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
                         if cmp -s <(echo "${chess[tryIndex]}") <(echo 'Q'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             break;
                         fi
                     done
@@ -303,14 +340,14 @@ get_move() {
                     for ((j = -1; j <= 1; j+=2)); do
                         tryIndex=$((index+((8*i))+j))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             found=1
                             break
                         fi
 
                         tryIndex=$((index+((8*j))+i))
                         if [[ tryIndex -lt 64 && tryIndex -ge 0 ]] && cmp -s <(echo "${chess[tryIndex]}") <(echo 'N'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             found=1
                             break
                         fi
@@ -324,7 +361,7 @@ get_move() {
                     for ((j=0; j < 8; j++)); do
                         tryIndex = $((i*8+j))
                         if cmp -s <(echo "${chess[tryIndex]}") <(echo 'K'); then
-                            chess[$tryIndex]='_'
+                            chess[$tryIndex]=' '
                             break;
                         fi
                     done
