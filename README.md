@@ -1,6 +1,6 @@
 # chessWorld
 
 начал смотреть сети, делаю запросики через lichess api и играю в шахматы с терминала
-![image](https://github.com/user-attachments/assets/88744378-a872-4e5e-94b0-77eaa1c7c57b)
-
+![image](https://github.com/user-attachments/assets/e0ec24ba-06b8-4435-a316-63a7e8b82b9b)
 ps api кривое и античит система после 4 хода не дает брать последний ход в прямом эфире через гет, поэтому хз как это обходить и играть можно только до 4 хода pepesad
+поменяю на стокфиш потом
